@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://clqmjxc1me663"]
+
+[ext_resource type="Script" path="res://Scripts/Game.cs" id="1_dfkca"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_lp6fx"]
+region = Rect2(300, 0, 60, 60)
+
+[node name="Game" type="Node2D"]
+script = ExtResource("1_dfkca")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(455, 339)
+texture = SubResource("AtlasTexture_lp6fx")
