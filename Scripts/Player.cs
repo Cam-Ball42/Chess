@@ -9,27 +9,27 @@ public partial class Player : Object
     public  bool IsHoldingPiece {get; set;} = false;
     public  bool Turn {get; set;} = false;
     public  Piece HeldPiece {get; set;}
-    public  Piece[] Pieces {get; set;}
+    public  List<Piece> Pieces = new List<Piece>();
     public  string Color {get; set;}
     public Board Board {get; set;}
 
     public Player(Board board, string Color)
     {
         this.Board = board;
-        List<Piece> pieces = new List<Piece>();
+        
         foreach (KeyValuePair<Vector2, Piece> entry in board.CurrentGameState)
         {
-            if (entry.Value.PieceColor == Color)
+            if (entry.Value.Color == Color)
             {
-                pieces.Add(entry.Value);
+                this.Pieces.Add(entry.Value);
             }
         }
-        Pieces = pieces.ToArray();
+       
     }
 
     public void MakeMove(Vector2 from, Vector2 to)
     {
-        if (Board.MovePiece(from, to) == true)
+        if (Board.MovePiece(from, to, this) == true)
         {
             Turn = false;
         }

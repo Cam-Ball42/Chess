@@ -38,10 +38,11 @@ public partial class Canvas : Node2D
         {
             
             DrawLegalMoves(Player.HeldPiece);
-            DrawBlockingPieces(Player.HeldPiece);
-            DrawAttackingCells(Player.HeldPiece);
+            //DrawBlockingPieces(Player.HeldPiece);
+            //DrawAttackingCells(Player.HeldPiece);
             DrawHeldPiece();
         }
+        //DrawAllAttackingCells();
         
     }
 
@@ -118,6 +119,29 @@ public partial class Canvas : Node2D
         foreach (Vector2 attackingCells in piece.AttackingCells)
         {
             HighlightCell(attackingCells, new Color(1, 1, 0, (float)0.5));
+        }
+    }
+
+    private void DrawAllAttackingCells()
+    {
+        foreach (KeyValuePair<Vector2, Piece> piece in CurrentBoard.CurrentGameState)
+        {
+            if (!piece.Value.IsEmpty && piece.Value.AttackingCells != null)
+            {
+                
+                foreach (Vector2 cell in piece.Value.AttackingCells)
+                {
+                    if(piece.Value.Color == "W")
+                    {
+                        //HighlightCell(cell, new Color(1, 0, 0, (float)0.5));
+                    }
+                   else
+                   {
+                       HighlightCell(cell, new Color(1, 1, 0, (float)0.5));
+                   }
+                }
+                
+            }
         }
     }
 

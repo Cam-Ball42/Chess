@@ -15,7 +15,7 @@ public partial class InputStateEvaluator : Node
         {
             if (InputState.IsClicking == true && HumanPlayer.IsHoldingPiece == false && HumanPlayer.Turn == true)
             {
-                if(Board.CurrentGameState.ContainsKey(InputState.GetCurCellClickPos()) && Board.CurrentGameState[InputState.GetCurCellClickPos()].PieceType != null)
+                if(Board.CurrentGameState.ContainsKey(InputState.GetCurCellClickPos()) && Board.CurrentGameState[InputState.GetCurCellClickPos()].Type != null)
                 {
                     HumanPlayer.HeldPiece = Board.CurrentGameState[InputState.GetCurCellClickPos()];
                     HumanPlayer.IsHoldingPiece = true;

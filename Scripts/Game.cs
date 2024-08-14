@@ -11,7 +11,7 @@ public partial class Game : Node2D
 	public int WindowSize = 640;
 
 
-	public string CurrentFen = "rnbqkbnr/pp1ppppp/8/2p5/4P3/5N2/PPPP1PPP/RNBQKB1R";
+	public string CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
 	public Debug Debug;
 

@@ -6,28 +6,31 @@ public partial class Piece : Node
 {
     
     public AtlasTexture AtlasTex  { get; set; }
-    public string PieceType { get; set; }
-    public string PieceColor {get; set;}
-    Godot.Vector2 PiecePosition;
+    public string Type { get; set; }
+    public string Color {get; set;}
+    public Godot.Vector2 CellPosition {get; set;}
     public bool IsAlive { get; set; } 
     public bool IsEmpty { get; set; }
     public bool IsChecking { get; set; }
+    public bool HasMoved { get; set; } 
     public Godot.Vector2[] CurrentMobility { get; set; }
 
     public Godot.Vector2[] BlockingCells { get; set; } 
     public Godot.Vector2[] AttackingCells { get; set; }
 
+    
+
     public Piece(string pieceType, string pieceColor, string position)
     {
-        PieceType = pieceType;
-        PieceColor = pieceColor;
+        Type = pieceType;
+        Color = pieceColor;
         IsAlive = true;
         IsEmpty = false;
 
         AtlasTex = new AtlasTexture();
-        DetermineAtlasRegion(PieceType);
+        DetermineAtlasRegion(Type);
         
-        PiecePosition = new Godot.Vector2((float)char.GetNumericValue(position[0]), (float)char.GetNumericValue(position[1]));
+        CellPosition = new Godot.Vector2((float)char.GetNumericValue(position[0]), (float)char.GetNumericValue(position[1]));
               
     }
 
@@ -49,23 +52,23 @@ public partial class Piece : Node
 
     public override string ToString()
     {
-        if (!IsEmpty) {return PieceColor + PieceType;}
+        if (!IsEmpty) {return Color + Type;}
         else {return "Empty";}
     }
 
     public Godot.Vector2 GetPiecePosition()
     {
-        return PiecePosition;
+        return CellPosition;
     }
 
     public void SetPiecePosition(Godot.Vector2 position)
     {
-        PiecePosition = position;
+        CellPosition = position;
     }
 
     public string GetStrPiecePosition()
     {
-        return PiecePosition.X.ToString() + PiecePosition.Y.ToString();
+        return CellPosition.X.ToString() + CellPosition.Y.ToString();
     }
 
     public void DetermineAtlasRegion(string pieceType)
@@ -73,7 +76,7 @@ public partial class Piece : Node
 
         AtlasTex.Atlas = ResourceLoader.Load<CompressedTexture2D>("res://ChessPiecesArray.png");
         int YStart = 0;
-        if (PieceColor == "W")
+        if (Color == "W")
         {
             YStart = 60;
         }

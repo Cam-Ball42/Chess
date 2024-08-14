@@ -1,9 +1,12 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 
 using System.Runtime.ExceptionServices;
+using System.Runtime.Serialization;
 using System.Security.Cryptography;
 
 public partial class Board : Node
@@ -35,7 +38,7 @@ public partial class Board : Node
 	}
 
 
-	public bool MovePiece(Vector2 from, Vector2 to)
+	public bool MovePiece(Vector2 from, Vector2 to, Player player)
 	{
 		Vector2[] CurrentMobility = GetPieceMobility(CurrentGameState[from]);
 		bool moved = false;
@@ -48,9 +51,14 @@ public partial class Board : Node
 				{
 					Piece piece = CurrentGameState[from];
 					CurrentGameState[from] = new Piece(true);
+					if (CurrentGameState[to].IsEmpty != true)
+					{
+						player.Pieces.Remove(CurrentGameState[to]);
+					}
 					CurrentGameState[to] = new Piece(true);
 					CurrentGameState[to] = piece;
 					piece.SetPiecePosition(new Vector2(to.X, to.Y));
+					piece.HasMoved = true;
 					moved = true;
 				}
 			
@@ -94,20 +102,54 @@ public partial class Board : Node
 
 	public Vector2[] GetPieceMobility(Piece piece)
 	{
+		if(piece.IsEmpty) {return null;}
 		Vector2[] moves;
-		if (piece.PieceColor == "B")
+
+		 moves = Moves.GetMoves(piece.Type);
+
+		 
+
+		if (piece.Type == "P") 
+			{ 
+				if (piece.HasMoved == false)
+				{
+					moves = Moves.GetPawnFirstMove();
+				}
+
+				Vector2[] Attacks;
+				if (piece.Color == "W"){ Attacks = Moves.GetWPawnAttackMoves();} 
+				else { Attacks = Moves.GetBPawnAttackMoves(); 
+						moves = Moves.FlipToBlack(moves);
+				}
+
+				List<Vector2> newMoves = new List<Vector2>(moves);
+				
+				for(int i = 0; i < Attacks.Length; i++)
+				{
+					Vector2 TargetCell = piece.GetPiecePosition() + Attacks[i];
+					if (CurrentGameState.ContainsKey(TargetCell))
+					{
+						if(CurrentGameState[TargetCell].Color != piece.Color && CurrentGameState[TargetCell].IsEmpty != true)
+						{
+							newMoves.Add(Attacks[i]);
+						}
+					}
+				}
+
+				moves = newMoves.ToArray();
+			}
+	
+		if (piece.Color == "B" && piece.Type != "P")
 		{
-			moves = Moves.FlipToBlack(Moves.GetMoves(piece.PieceType));
-		} else { moves = Moves.GetMoves(piece.PieceType);}
-		
-		bool isChecking = false;
+			moves = Moves.FlipToBlack(moves);
+		} 
+
 		List<Vector2> blockingPieces = new List<Vector2>();
 		List<Vector2> attackingCells = new List<Vector2>();
 		List<Vector2> mobility = new List<Vector2>();
-		int directions = Moves.GetPieceDirections(piece.PieceType);
+		int directions = Moves.GetPieceDirections(piece.Type);
 		int j = 0;
 		
-	
 		for (int i = 0; i < moves.Length; i++)
 		{
 			
@@ -118,22 +160,24 @@ public partial class Board : Node
 					if (CurrentGameState[newPosition].IsEmpty)
 					{
 						mobility.Add(newPosition);
+						attackingCells.Add(newPosition);
 						
 						
 					}
 					else
 					{
-						if (CurrentGameState[newPosition].PieceType == "K")
+						if (CurrentGameState[newPosition].Type == "K")
 						{
-							isChecking = true;
+							piece.IsChecking = true;
 						}
-						if (CurrentGameState[newPosition].PieceColor != piece.PieceColor)
+						if (CurrentGameState[newPosition].Color != piece.Color)
 						{
 							mobility.Add(newPosition);
 							attackingCells.Add(newPosition);
 							
 						}
-						else {
+						else 
+						{
 						blockingPieces.Add(newPosition);
 						}
 						i = i + Math.Clamp(directions - j , 0, directions) ;
@@ -152,8 +196,17 @@ public partial class Board : Node
 		piece.CurrentMobility = mobility.ToArray();
 		piece.BlockingCells = blockingPieces.ToArray();
 		piece.AttackingCells = attackingCells.ToArray();
-		piece.IsChecking = isChecking;
 		return piece.CurrentMobility;
+	}
+
+	public Vector2[] GetPawnAvailableMoves(Piece piece)
+	{
+		Vector2[] moves = Moves.GetPawnFirstMove();
+		if (piece.HasMoved)
+		{
+			moves = Moves.GetMoves(piece.Type);
+		}
+		return moves;
 	}
 
 
@@ -216,7 +269,7 @@ public partial class Board : Node
 							Fen += emptySquares.ToString();
 							emptySquares = 0;
 						}
-						Fen += GameState[Position].PieceColor == "W" ? GameState[Position].PieceType.ToLower() : GameState[Position].PieceType;
+						Fen += GameState[Position].Color == "W" ? GameState[Position].Type.ToLower() : GameState[Position].Type;
 					}
 				}
 			}
