@@ -2,6 +2,8 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
+
 
 public partial class Canvas : Node2D
 {
@@ -13,6 +15,11 @@ public partial class Canvas : Node2D
 
     public Player Player {get; set;}
 
+    private bool IsAnimating {get;set;} = false;
+    private Move CurrentPieceMove {get; set;}
+    private Vector2 CurrentAnimationPos;
+
+    private Tween AnimTween;
     
 
     public override void _Ready()
@@ -23,24 +30,46 @@ public partial class Canvas : Node2D
         DefaultFont = ThemeDB.FallbackFont;
         
     }
+    
+
+    public void ConnectSignals()
+    {
+        CurrentBoard.MoveMade += StartMoveAnimation;
+    }
 
     public override void _Process(double delta)
     {
          QueueRedraw();
     }
 
-    public override void _Draw()
+    public override async void _Draw()
     {
         
         DrawBoard();
         DrawPieces();
+        //DrawAllAttackingCells();
         if (Player.IsHoldingPiece && Player.HeldPiece.CurrentMobility != null)
         {
-            
+            CurrentBoard.GetPieceMobility(Player.HeldPiece);
             DrawLegalMoves(Player.HeldPiece);
             //DrawBlockingPieces(Player.HeldPiece);
             //DrawAttackingCells(Player.HeldPiece);
+            
             DrawHeldPiece();
+        }
+        if (IsAnimating == true)
+        {
+            if ( AnimTween != null)
+            {
+                AnimTween.Kill();
+                AnimTween = CreateTween();
+            } else { AnimTween = CreateTween(); }
+            AnimTween.TweenProperty(this, "CurrentAnimationPos", CurrentPieceMove.To, 0.1);
+            DrawTexture(CurrentPieceMove.Piece.AtlasTex, CurrentAnimationPos * CellSize);
+            if((CurrentPieceMove.To - CurrentAnimationPos).Length() < 0.1f)
+            {
+                IsAnimating = false;
+            }
         }
         //DrawAllAttackingCells();
         
@@ -61,7 +90,7 @@ public partial class Canvas : Node2D
                     DrawRect(new Rect2(i * CellSize.X, j  * CellSize.Y, CellSize.X, CellSize.Y), Colors.Beige, true);
                 }
 
-                DrawString(DefaultFont, new Vector2(i * CellSize.X + CellSize.X / 2, j * CellSize.Y + CellSize.Y / 2), $"{(i)}{j}");
+                //DrawString(DefaultFont, new Vector2(i * CellSize.X + CellSize.X / 2, j * CellSize.Y + CellSize.Y / 2), $"{i}{j}");
                 
             }
         }
@@ -72,14 +101,20 @@ public partial class Canvas : Node2D
         foreach (KeyValuePair<Vector2, Piece> piece in CurrentBoard.CurrentGameState)
         {
             if (!piece.Value.IsEmpty)
-            {
+            { 
                 
                 DrawTexture(piece.Value.AtlasTex, piece.Value.GetPiecePosition() * CellSize);
-                
                 
             }
         }
        
+    }
+
+    public void StartMoveAnimation(Vector2 from, Vector2 to, Piece piece)
+    {
+        CurrentPieceMove = new Move(from, to, piece);
+        CurrentAnimationPos = from;
+        IsAnimating = true;
     }
 
     private void DrawHeldPiece()
@@ -133,11 +168,11 @@ public partial class Canvas : Node2D
                 {
                     if(piece.Value.Color == "W")
                     {
-                        //HighlightCell(cell, new Color(1, 0, 0, (float)0.5));
+                        HighlightCell(cell, new Color(1, 0, 0, (float)0.5));
                     }
                    else
                    {
-                       HighlightCell(cell, new Color(1, 1, 0, (float)0.5));
+                       //HighlightCell(cell, new Color(1, 1, 0, (float)0.5));
                    }
                 }
                 

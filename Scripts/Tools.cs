@@ -37,5 +37,15 @@ public static class Tools : Object
 		return new Godot.Vector2(GetMousePosition(node).Y / (WindowSize / 8), GetMousePosition(node).X / (WindowSize / 8));
 	}
 
+	public static double easeInOutSine(float number)
+	{
+		return -(Math.Cos(Math.PI * (double)number - 1) / 2);
+	}
+
+	public static Godot.Vector2 easeInOutSine(Godot.Vector2 number)
+	{
+		return new Godot.Vector2((float)easeInOutSine(number.X), (float)easeInOutSine(number.Y));
+	}
+
 
 }

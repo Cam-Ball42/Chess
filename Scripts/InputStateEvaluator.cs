@@ -4,8 +4,9 @@ using System;
 public partial class InputStateEvaluator : Node
 {
     public Player HumanPlayer {get; set;}
+    public Board Board {get;set;}
 
-    public InputStateEvaluator(Player player)
+    public InputStateEvaluator(Player player, Board Board)
     {
         HumanPlayer = player;
     }
@@ -33,7 +34,7 @@ public partial class InputStateEvaluator : Node
                     if (Board.CurrentGameState.ContainsKey(InputState.GetCurCellClickPos()))
                     {
 
-                        HumanPlayer.MakeMove(HumanPlayer.HeldPiece.GetPiecePosition(), Tools.GetCellFromMouse(this));
+                        HumanPlayer.MakeMove(HumanPlayer.HeldPiece.GetPiecePosition(), Tools.GetCellFromMouse(this), Board);
                         HumanPlayer.IsHoldingPiece = false;
                         HumanPlayer.HeldPiece = null;
                         

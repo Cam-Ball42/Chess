@@ -1,14 +1,14 @@
 using Godot;
 using System;
 using System.Collections.Generic;
+
 using System.Runtime.ExceptionServices;
 
 public partial class Game : Node2D
 {
+	public AudioStreamPlayer2D AudioStreamPlayer;
 
-
-
-	public int WindowSize = 640;
+	public int WindowSize = 512;
 
 
 	public string CurrentFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
@@ -38,14 +38,17 @@ public partial class Game : Node2D
 	{
 		DisplayServer.WindowSetSize(new Vector2I(WindowSize, WindowSize));
 		Tools.WindowSize = WindowSize;
+		AudioStreamPlayer = GetNode("AudioStreamPlayer2D") as AudioStreamPlayer2D;
 
 		Board = new Board(CurrentFen);
 		Debug = new Debug(WindowSize);
+
 		Player = new Player(Board, "W");
 		BotPlayer = new Player(Board, "B");
-		InputStateEvaluator = new InputStateEvaluator(Player);
+		Player.Opponent = BotPlayer;
+		BotPlayer.Opponent = Player;
 
-
+		InputStateEvaluator = new InputStateEvaluator(Player, Board);
 
 		AddChild(InputHandler);
 		AddChild(InputStateEvaluator);
@@ -62,20 +65,16 @@ public partial class Game : Node2D
 				AddChild(Canvas);
 				Canvas.CurrentBoard = Board;
 				Canvas.Player = Player;
+				Canvas.ConnectSignals();
 			}
 		}
 
-
-		Console.WriteLine(Board.GetFenFromState(Board.CurrentGameState));
-
-		foreach (KeyValuePair<Vector2, Piece> piece in Board.CurrentGameState)
-		{
-			Console.WriteLine(piece.Value.ToString());
-		}
+		Board.MoveMade += PlayMoveSound;
 
 		Debug.TrackMousePosition();
 
 		StartGame();
+		GameLoop();
 	}
 
 
@@ -87,13 +86,7 @@ public partial class Game : Node2D
 			{
 				Debug.UpdateTrackedObjects();
 				InputStateEvaluator.EvaluateInputState(this, Board);
-				Canvas.CurrentBoard = Board;
-				if (Player.Turn == false)
-				{
-					//await ToSignal(GetTree().CreateTimer(1f), "timeout");
-					BotPlayer.MakeBotMove(Board);
-					Player.Turn = true;
-				}
+				
 
 			}
 		}
@@ -107,6 +100,32 @@ public partial class Game : Node2D
 		Player.IsPlaying = true;
 		Player.Turn = true;
 
+	}
+
+	public Board GetBoard()
+	{
+		return Board;
+	}
+
+	public void PlayMoveSound(Vector2 from, Vector2 to , Piece piece)
+	{
+		AudioStreamPlayer.Play();
+	}
+	
+	public async void GameLoop()
+	{
+		while(Board.GameFinished == false & CurrentPlayState == PlayState.Playing)
+		{
+			if (Player.Turn == false)
+			{
+				await ToSignal(GetTree().CreateTimer(1f), "timeout");
+				Board.EvaluateBoardMobility();
+				BotPlayer.MakeBotMove(Board);
+				Player.Turn = true;
+			}
+
+			await ToSignal(GetTree().CreateTimer(0.5f), "timeout");
+		}
 	}
 
 

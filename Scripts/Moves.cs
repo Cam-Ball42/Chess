@@ -10,7 +10,7 @@ public static class Moves : Object
     public static Vector2[] Pawn = new Vector2[] {new Vector2(0,-1)};
     public static Vector2[] PawnFirstMove = new Vector2[] {new Vector2(0,-1), new Vector2(0,-2)} ;
     public static Vector2[] WPawnAttacking = new Vector2[] {new Vector2(1,-1), new Vector2(-1,-1)};  
-    public static Vector2[] BPawnAttacking = new Vector2[] {new Vector2(-1, 1), new Vector2(1, -1)} ;
+    public static Vector2[] BPawnAttacking = new Vector2[] {new Vector2(-1, 1), new Vector2(1, 1)} ;
     public static Vector2[] Knight = new Vector2[] {new Vector2(1,2), new Vector2(-1,2), new Vector2(1,-2), new Vector2(-1,-2),
              new Vector2(2,1), new Vector2(-2,1), new Vector2(2,-1), new Vector2(-2,-1)
              };

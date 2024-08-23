@@ -13,6 +13,7 @@ public partial class Piece : Node
     public bool IsEmpty { get; set; }
     public bool IsChecking { get; set; }
     public bool HasMoved { get; set; } 
+    public Player Player { get; set; }
     public Godot.Vector2[] CurrentMobility { get; set; }
 
     public Godot.Vector2[] BlockingCells { get; set; } 
