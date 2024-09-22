@@ -12,8 +12,10 @@ using System.Security.Cryptography;
 public partial class Board : Node
 {
 	// Board is denoted by file, rank eg 0,0 is a1
-    public Dictionary<Vector2, Piece> PreviousGameState = new Dictionary<Vector2, Piece>();
     public Dictionary<Vector2, Piece> CurrentGameState = new Dictionary<Vector2, Piece>();
+	public Dictionary<Vector2, Piece> NextGameState = new Dictionary<Vector2, Piece>();
+
+	public List<Move> MoveHistory = new List<Move>();
 	
 	string CurrentTurn = "W";
 
@@ -35,7 +37,7 @@ public partial class Board : Node
 
 	public override void _Ready()
 	{
-		PreviousGameState = CurrentGameState;
+		
 		EvaluateBoardMobility();
 
 	}
@@ -48,12 +50,15 @@ public partial class Board : Node
 		Vector2[] CurrentMobility = CurrentGameState[from].CurrentMobility;
 		bool moved = false;
 
+		
+
 		if (CurrentGameState.ContainsKey(from) && CurrentGameState.ContainsKey(to))
 		{
 			for (int i = 0; i < CurrentMobility.Length; i++)
 			{
 				if (CurrentMobility[i] == to)
 				{
+					
 					Piece piece = CurrentGameState[from];
 					CurrentGameState[from] = new Piece(true);
 					if (CurrentGameState[to].IsEmpty != true)
@@ -67,6 +72,7 @@ public partial class Board : Node
 					moved = true;
 					EmitSignal(SignalName.MoveMade, from, to, piece);
 					EvaluateBoardMobility();
+					
 					return moved;
 				}
 			 	
@@ -79,7 +85,9 @@ public partial class Board : Node
 
 	public void UndoMove()
 	{
-		CurrentGameState = PreviousGameState;
+		
+
+		EvaluateBoardMobility();
 	}
 
 	public void EvaluateBoardMobility()

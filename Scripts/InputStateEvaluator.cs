@@ -47,6 +47,15 @@ public partial class InputStateEvaluator : Node
             }
             
         }
+
+        if (InputState.LeftPressed == true)
+        {
+            HumanPlayer.Turn = !HumanPlayer.Turn;
+            Board.UndoMove();
+            InputState.LeftPressed = false;
+
+        }
+        
     }
 
     public void PrintState()    

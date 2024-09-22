@@ -12,6 +12,9 @@ public static class InputState : Object
     public static bool IsClicking  {get; set;}= false;
     public static bool IsDragging {get; set;} = false;
 
+    public static bool LeftPressed {get; set;} = false;
+    public static bool RightPressed {get; set;} = false;
+
 
 
     public static void SetCurMouseClickPos(Godot.Vector2 pos)

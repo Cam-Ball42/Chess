@@ -33,6 +33,33 @@ public partial class InputHandler : Node
             }
                 
 		}
-	}
+
+        if (@event is InputEventKey key)
+        {
+            if (key.Pressed)
+            {
+                if (key.Keycode == Key.Right)
+                {
+                    InputState.RightPressed = true;
+                }
+                if (key.Keycode == Key.Left)
+                {
+                    InputState.LeftPressed = true;
+                }
+            }
+
+            if (!key.Pressed)
+            {
+                if (key.Keycode == Key.Right)
+                {
+                    InputState.RightPressed = false;
+                }
+                if (key.Keycode == Key.Left)
+                {
+                    InputState.LeftPressed = false;
+                }
+            }
+	    }
+    }
 
 }

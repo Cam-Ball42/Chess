@@ -180,16 +180,6 @@ public partial class Canvas : Node2D
         }
     }
 
-    
-
-
-
-
-
-
-
-
-
 
 
     public void SetGameState(Dictionary<Vector2, Piece> gameState)
